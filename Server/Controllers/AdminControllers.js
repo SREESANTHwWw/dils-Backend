@@ -41,7 +41,7 @@ router.post(
       // await fileData.save();
       const filename = req.file.filename;
       const filePath = `uploads/${filename}`
-     const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+     const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
      
      
       const productdet = {
@@ -128,7 +128,7 @@ router.post(
       const { parentCategory_id, Category_name, subCategory,hasSubcategory } = req.body;
       const filename = req.file.filename;
       const filePath = `uploads/${filename}`;
-      const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
       const categorydet = {
         parentCategory_id,
         Category_img: fileUrl,
@@ -153,7 +153,7 @@ router.post('/add-subcategory/:id',upload.single("subCategory_img"),CatchAsyncEr
         const {subCategory, category_id} =req.body
         const filename = req.file.filename;
         const filePath = `uploads/${filename}`;
-        const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`
+        const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`
         const subcategoryDet = {
           subCategory,category_id,subCategory_img:fileUrl
         }
@@ -191,7 +191,7 @@ router.patch(
       
       const filename = req.file.filename;
       const filePath = `uploads/${filename}`;
-      const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
       const categorydet = {
         Category_id,
         Category_img: fileUrl,
