@@ -22,6 +22,9 @@ const UserSchema = new mongoose.Schema({
     required:[true, "Must Provide a  shopname"],
    
   },
+  shopPhoto:{
+  type:String
+  },
   owner:{
     type:String,
     required:[true, "Must Provide a ownername"],
@@ -67,8 +70,8 @@ const UserSchema = new mongoose.Schema({
 
   type:{
     type:String,
-    enum: ["user", "admin","medium","permium"],
-    default:"user",
+    enum: ["User", "admin","Medium","Premium"],
+    default:"User",
    
   },
   createdAt:{

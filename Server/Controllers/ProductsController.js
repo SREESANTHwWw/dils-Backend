@@ -169,10 +169,10 @@ router.post(
 
       // Dynamically select price based on userType
       let selectedPrice;
-      if (userType === "medium") {
-        selectedPrice = Product.medium_price || Product.price;
-      } else if (userType === "premium") {
-        selectedPrice = Product.premium_price || Product.price;
+      if (userType === "Medium") {
+        selectedPrice = Product.medium_price ;
+      } else if (userType === "Premium") {
+        selectedPrice = Product.premium_price;
       } else {
         selectedPrice = Product.price; // Default price for normal users
       }

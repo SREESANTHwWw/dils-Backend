@@ -6,9 +6,10 @@ const Productmodel = require("../Model/Productmodel");
 const ErrorHandler = require("../Utils/ErrorHandler");
 const express = require("express");
 const router = express.Router();
-const { upload } = require("../Multer");
+const upload = require("../Multer");
 const CategoryModel = require("../Model/CategoryModel");
 const subcategorymodel = require("../Model/subcategorymodel");
+const Server = require("../Server");
 
 router.post(
   "/create-products",
@@ -26,24 +27,22 @@ router.post(
         fast_moving,
         isActive,
         categoryProduct,
-        mRP
+        mRP,
       } = req.body;
-
 
       // const fileData = new File({
       //   filename: req.file.originalname,
       //   filepath: req.file.path,
-      //   fileUrl: `http://localhost:5000/uploads/${req.file.filename}`,
+      //   fileUrl: http://localhost:5000/uploads/${req.file.filename},
       // });
 
       // console.log(fileData);
-      
+
       // await fileData.save();
       const filename = req.file.filename;
-      const filePath = `uploads/${filename}`
-     const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
-     
-     
+      const filePath = `uploads/${filename}`;
+      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
+
       const productdet = {
         productname,
         product_img: fileUrl,
@@ -57,10 +56,7 @@ router.post(
         isActive,
         mRP,
         categoryProduct,
-        
       };
-      
-      
 
       const products = await Productmodel.create(productdet);
 
@@ -93,16 +89,50 @@ router.delete(
 );
 
 router.patch(
-  "/edit-product/:id",
+  "/edit-product/:id",upload.single("product_img"),
   CatchAsyncError(async (req, res, next) => {
     try {
-      const { id: Product_id } = req.params;
-      console.log(Product_id);
-      console.log(req.params);
+      const {id : Product_id } = req.params;
+      const {
+        productname,
+        product_img,
+        price,
+        unitid,
+        description,
+        medium_price,
+        premium_price,
+        minimum_order_quantity,
+        fast_moving,
+        mRP,
+      } = req.body;
 
-      const editProduct = await Productmodel.findOneAndUpdate(
-        { _id: Product_id },
-        req.body,
+      const productExist = await Productmodel.findById(Product_id );
+      if (!productExist) {
+        res.status(401).json({ msg: "Product Not Found" });
+      }
+
+      const updateProduct = {};
+      if (productname) updateProduct.productname = productname;
+    
+      if (price) updateProduct.price = price;
+      if (unitid) updateProduct.unitid = unitid;
+      if (description) updateProduct.description = description;
+      if (medium_price) updateProduct.medium_price = medium_price;
+      if (premium_price) updateProduct.premium_price = premium_price;
+      if (minimum_order_quantity) updateProduct.minimum_order_quantity = minimum_order_quantity;
+      if (fast_moving) updateProduct.fast_moving = fast_moving;
+      if (mRP) updateProduct.mRP = mRP;
+      if (req.file) {
+        const filename = req.file.filename;
+        const fileUrl = `https://dils-backend.onrender.com/uploads/${filename}`;
+        updateProduct.product_img = fileUrl;
+      }
+
+
+      const editProduct = await Productmodel.findByIdAndUpdate(
+         Product_id ,
+         { $set: updateProduct },
+        
         {
           new: true,
           runValidators: true,
@@ -113,7 +143,7 @@ router.patch(
           .status(400)
           .json({ mes: ` NO Product with this ${Product_id}` });
       }
-      res.status(200).json({ msg: "Product Edited", editProduct });
+      res.status(200).json({ msg: "success", editProduct });
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -125,7 +155,8 @@ router.post(
   upload.single("Category_img"),
   CatchAsyncError(async (req, res, next) => {
     try {
-      const { parentCategory_id, Category_name, subCategory,hasSubcategory } = req.body;
+      const { parentCategory_id, Category_name, subCategory, hasSubcategory } =
+        req.body;
       const filename = req.file.filename;
       const filePath = `uploads/${filename}`;
       const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
@@ -146,25 +177,27 @@ router.post(
   })
 );
 
-
-router.post('/add-subcategory/:id',upload.single("subCategory_img"),CatchAsyncError(async(req,res,next)=>{
-
-  try {
-        const {subCategory, category_id} =req.body
-        const filename = req.file.filename;
-        const filePath = `uploads/${filename}`;
-        const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`
-        const subcategoryDet = {
-          subCategory,category_id,subCategory_img:fileUrl
-        }
-      const add_category = await subcategorymodel.create(subcategoryDet)
-      res.status(201).json({msg:"success" , add_category})
-
-  } catch (error) {
-    return next( new ErrorHandler(error.message,400))
-
-  }
-}))
+router.post(
+  "/add-subcategory/:id",
+  upload.single("subCategory_img"),
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { subCategory, category_id } = req.body;
+      const filename = req.file.filename;
+      const filePath = `uploads/${filename}`;
+      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
+      const subcategoryDet = {
+        subCategory,
+        category_id,
+        subCategory_img: fileUrl,
+      };
+      const add_category = await subcategorymodel.create(subcategoryDet);
+      res.status(201).json({ msg: "success", add_category });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
 
 router.get(
   "/get-category/:id",
@@ -183,38 +216,53 @@ router.get(
 );
 
 router.patch(
-  "/edit-category/:id", upload.single("Category_img"),
+  "/edit-category/:id",
+  upload.single("Category_img"), // Middleware for single image upload
   CatchAsyncError(async (req, res, next) => {
     try {
+      // Extract category ID from params
       const { id: category_id } = req.params;
-      const { Category_id, Category_name, subCategory } = req.body;
-      
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
-      const categorydet = {
-        Category_id,
-        Category_img: fileUrl,
-        Category_name,
-        subCategory,
-      };
 
-  
-     
+      // Fetch fields from request body
+      const { Category_name, hasSubcategory } = req.body;
 
-      const editcate = await CategoryModel.findOneAndUpdate(
-        { _id: category_id },
-        categorydet ,
-        {
-          runValidators: true,
-          new: true,
-        }
-      );
-      if (!editcate) {
-        res.status(401).json({ msg: `NO  Category  with ${category_id}` });
+      // Find the existing category
+      const existingCategory = await CategoryModel.findById(category_id);
+      if (!existingCategory) {
+        return res
+          .status(404)
+          .json({ msg: `No category found with ID ${category_id}` });
       }
-      res.status(201).json({ msg: "success", editcate });
+
+      // Prepare updated data object
+      const updatedData = {};
+
+      // Update category name if provided
+      if (Category_name) updatedData.Category_name = Category_name;
+
+      // Update hasSubcategory if provided
+      if (hasSubcategory !== undefined) {
+        updatedData.hasSubcategory = hasSubcategory;
+      }
+
+      // Update image if a new file is uploaded
+      if (req.file) {
+        const filename = req.file.filename;
+        const fileUrl = `https://dils-backend.onrender.com/uploads/${filename}`;
+        updatedData.Category_img = fileUrl;
+      }
+
+      // Perform the update operation
+      const updatedCategory = await CategoryModel.findByIdAndUpdate(
+        category_id,
+        { $set: updatedData }, // Update only specified fields
+        { runValidators: true, new: true } // Return updated document
+      );
+
+      // Response
+      res.status(200).json({ msg: "success", updatedCategory });
     } catch (error) {
+      console.error("Error updating category:", error);
       return next(new ErrorHandler(error.message, 400));
     }
   })
