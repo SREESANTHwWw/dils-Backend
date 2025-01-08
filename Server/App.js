@@ -8,6 +8,7 @@ const Productrouter = require("./Controllers/ProductsController")
 const categoryrouter = require("./Controllers/CategoryController")
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const cloudinary = require("cloudinary").v2;
 
 require("dotenv").config();
 
@@ -24,6 +25,12 @@ app.use("/api/v1/",Productrouter)
 app.use('/api/v1/', categoryrouter) 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 const start = async () => {  
   try {

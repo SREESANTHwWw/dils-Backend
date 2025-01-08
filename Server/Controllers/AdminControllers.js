@@ -39,9 +39,9 @@ router.post(
       // console.log(fileData);
 
       // await fileData.save();
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      const fileUrl = result.secure_url;
+      
 
       const productdet = {
         productname,
