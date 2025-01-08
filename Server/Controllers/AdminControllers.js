@@ -10,6 +10,7 @@ const upload = require("../Multer");
 const CategoryModel = require("../Model/CategoryModel");
 const subcategorymodel = require("../Model/subcategorymodel");
 const Server = require("../Server");
+const cloudinary = require("cloudinary").v2;
 
 router.post(
   "/create-products",

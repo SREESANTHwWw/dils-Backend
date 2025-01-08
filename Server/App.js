@@ -26,11 +26,6 @@ app.use('/api/v1/', categoryrouter)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
 
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-});
 
 const start = async () => {  
   try {

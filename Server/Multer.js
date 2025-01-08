@@ -1,33 +1,28 @@
 const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const dotenv = require("dotenv");
 
-// Define the upload directory path
-const uploadDir = path.join(__dirname, "uploads");
+// Load environment variables
+dotenv.config();
 
-// Ensure the uploads directory exists
-try {
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-  }
-} catch (err) {
-  console.error("Error creating uploads directory:", err);
-  process.exit(1); // Exit process if directory creation fails
-}
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 // Allowed file types
 const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
 
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const timestamp = Date.now();
-    const ext = path.extname(file.originalname);
-    const basename = path.basename(file.originalname, ext);
-    cb(null, `${timestamp}-${basename}${ext}`);
+// Cloudinary storage configuration
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "uploads", // Folder name in Cloudinary
+    allowed_formats: ["jpg", "png", "gif", "webp"], // Allowed formats
+    transformation: [{ width: 500, height: 500, crop: "limit" }], // Optional: Resize image
   },
 });
 
@@ -47,4 +42,4 @@ const upload = multer({
   fileFilter: fileFilter,
 });
 
-module.exports = upload; // Export multer configuration
+module.exports = upload;
