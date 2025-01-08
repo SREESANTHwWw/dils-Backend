@@ -8,6 +8,7 @@ const sendToken = require("../Utils/JwtTokwn");
 const CartModel = require("../Model/CartModel");
 const UserAddressmode = require("../Model/UserAddressmode");
 const upload = require("../Multer");
+const cloudinary = require("cloudinary").v2;
 
 router.post(
   "/registration",
@@ -30,9 +31,8 @@ router.post(
         createdAt,
         shopPhoto,
       } = req.body;
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+        const result = await cloudinary.uploader.upload(req.file.path);
+            const fileUrl = result.secure_url;
 
       const userdet = {
         username,

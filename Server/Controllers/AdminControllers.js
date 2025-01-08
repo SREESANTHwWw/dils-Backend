@@ -124,8 +124,8 @@ router.patch(
       if (fast_moving) updateProduct.fast_moving = fast_moving;
       if (mRP) updateProduct.mRP = mRP;
       if (req.file) {
-        const filename = req.file.filename;
-        const fileUrl = `https://dils-backend.onrender.com/uploads/${filename}`;
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const fileUrl = result.secure_url;
         updateProduct.product_img = fileUrl;
       }
 
@@ -158,9 +158,8 @@ router.post(
     try {
       const { parentCategory_id, Category_name, subCategory, hasSubcategory } =
         req.body;
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const fileUrl = result.secure_url;
       const categorydet = {
         parentCategory_id,
         Category_img: fileUrl,
@@ -184,9 +183,8 @@ router.post(
   CatchAsyncError(async (req, res, next) => {
     try {
       const { subCategory, category_id } = req.body;
-      const filename = req.file.filename;
-      const filePath = `uploads/${filename}`;
-      const fileUrl = `https://dils-backend.onrender.com/uploads/${req.file.filename}`;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      const fileUrl = result.secure_url;
       const subcategoryDet = {
         subCategory,
         category_id,
@@ -248,8 +246,8 @@ router.patch(
 
       // Update image if a new file is uploaded
       if (req.file) {
-        const filename = req.file.filename;
-        const fileUrl = `https://dils-backend.onrender.com/uploads/${filename}`;
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const fileUrl = result.secure_url;
         updatedData.Category_img = fileUrl;
       }
 
