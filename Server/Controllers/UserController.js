@@ -31,8 +31,8 @@ router.post(
         createdAt,
         shopPhoto,
       } = req.body;
-        const result = await cloudinary.uploader.upload(req.file.path);
-            const fileUrl = result.secure_url;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      const fileUrl = result.secure_url;
 
       const userdet = {
         username,
@@ -48,10 +48,10 @@ router.post(
         stateid,
         type,
         createdAt,
-        shopPhoto:fileUrl
-      }
+        shopPhoto: fileUrl,
+      };
 
-      const existUsername = await usermodel.findOne({ username, });
+      const existUsername = await usermodel.findOne({ username });
       if (existUsername) {
         return res.status(400).json({ msg: "UserName Already Exist" });
       }
@@ -100,22 +100,23 @@ router.get(
   "/get-users",
   CatchAsyncError(async (req, res, next) => {
     try {
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 4;
+      const skip = (page - 1) * limit;
 
-         const page = Number(req.query.page) || 1;
-              const limit = Number(req.query.limit) || 4;
-              const skip = (page - 1) * limit;
-        
-              // Fetch the total number of products to calculate pagination
-              const totalusesr = await usermodel.countDocuments();
-        
-              // Fetch paginated products
-              const getusers = await usermodel.find({ type: { $ne: "admin" }}).limit(limit).skip(skip);
-        
-              // Calculate total number of pages
-              const totalPages = Math.ceil(totalusesr / limit);
-        
-     
-      res.status(201).json({ getusers,totalPages,currentPage: page, });
+      // Fetch the total number of products to calculate pagination
+      const totalusesr = await usermodel.countDocuments();
+
+      // Fetch paginated products
+      const getusers = await usermodel
+        .find({ type: { $ne: "admin" } })
+        .limit(limit)
+        .skip(skip);
+
+      // Calculate total number of pages
+      const totalPages = Math.ceil(totalusesr / limit);
+
+      res.status(201).json({ getusers, totalPages, currentPage: page });
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -218,17 +219,40 @@ router.delete(
       });
 
       if (!deletedAddress) {
-        return res
-          .status(404)
-          .json({
-            msg: `Address not found with ID ${addressId} for User ${userId}`,
-          });
+        return res.status(404).json({
+          msg: `Address not found with ID ${addressId} for User ${userId}`,
+        });
       }
 
       // Address successfully deleted
       res.status(200).json({ msg: "Address deleted successfully" });
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+router.patch(
+  "/editAddress/:id",
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { id: userId } = req.params;
+
+      const editedAddress = await UserAddressmode.findOneAndUpdate(
+        {
+          _id: userId,
+        },
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      )
+      if(!editedAddress){
+        res.status(401).json({msg:"Address not Found"})
+      }
+      res.status(201).json({editedAddress})
+    } catch (error) {
+      return next(new ErrorHandler(error.message), 400);
     }
   })
 );
