@@ -101,6 +101,42 @@ router.get(`/getunit`,CatchAsyncError(async(req,res,next)=>{
     return next(new ErrorHandler(error.message, 400));
   }
 }))
+router.delete(`/deleteUnit/:id`,CatchAsyncError(async(req,res,next)=>{
+  try {
+    const {id:unitid} =req.params
+
+    const deleteUnit = await UnitModal.findOneAndDelete({_id:unitid})
+     res.status(200).json({msg:"success"})
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+}))
+router.patch(`/editUnit/:id`, CatchAsyncError(async (req, res, next) => {
+  try {
+    const { id: unitid } = req.params; // Extract unit ID from params
+    const { unitname } = req.body; // Extract updated unit name from request body
+
+    if (!unitname) {
+      return res.status(400).json({ msg: "Unit name is required" });
+    }
+
+    const updatedUnit = await UnitModal.findByIdAndUpdate(
+      unitid, 
+      { unitname }, 
+      { new: true, runValidators: true } // Returns the updated document
+    );
+
+    if (!updatedUnit) {
+      return res.status(404).json({ msg: "Unit not found" });
+    }
+
+    res.status(200).json({ msg: "Unit updated successfully", updatedUnit });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+}));
+
 
 router.delete(
   "/delete-product/:id",
