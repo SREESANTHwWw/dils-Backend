@@ -71,8 +71,8 @@ router.post(
 
 router.post(`/addunit`,CatchAsyncError(async(req,res,next)=>{
   try {
-
-    const unitCreate = await UnitModal.create()
+         const {unitname} = req.body
+    const unitCreate = await UnitModal.create(unitname)
     res.status(201).json({msg:"success" ,unitCreate})
     
   } catch (error) {
