@@ -89,6 +89,18 @@ router.post(
     }
   })
 );
+router.get(`/getunit`,CatchAsyncError(async(req,res,next)=>{
+  try {
+    
+    const getUnit = await UnitModal.find({})
+    res.status(201).json({ msg: "success", getUnit });
+
+
+  } catch (error) {
+    
+    return next(new ErrorHandler(error.message, 400));
+  }
+}))
 
 router.delete(
   "/delete-product/:id",
