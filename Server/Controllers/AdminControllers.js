@@ -10,6 +10,7 @@ const upload = require("../Multer");
 const CategoryModel = require("../Model/CategoryModel");
 const subcategorymodel = require("../Model/subcategorymodel");
 const Server = require("../Server");
+const UnitModal = require("../Model/UnitModal");
 const cloudinary = require("cloudinary").v2;
 
 router.post(
@@ -68,6 +69,17 @@ router.post(
   }
 );
 
+router.post(`/addunit`,CatchAsyncError(async(req,res,next)=>{
+  try {
+
+    const unitCreate = await UnitModal.create()
+    res.status(201).json({msg:"success" ,unitCreate})
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message,400) )
+    
+  }
+}))
 router.delete(
   "/delete-product/:id",
   CatchAsyncError(async (req, res, next) => {
