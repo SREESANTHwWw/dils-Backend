@@ -69,17 +69,27 @@ router.post(
   }
 );
 
-router.post(`/addunit`,CatchAsyncError(async(req,res,next)=>{
-  try {
-         const {unitname} = req.body
-    const unitCreate = await UnitModal.create(unitname)
-    res.status(201).json({msg:"success" ,unitCreate})
-    
-  } catch (error) {
-    return next(new ErrorHandler(error.message,400) )
-    
-  }
-}))
+router.post(
+  `/addunit`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { unitname } = req.body;
+
+      // Ensure the unitname is provided
+      if (!unitname) {
+        return next(new ErrorHandler("Unit name is required", 400));
+      }
+
+      // Create a new unit
+      const unitCreate = await UnitModal.create({ unitname });
+
+      res.status(201).json({ msg: "success", unitCreate });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+
 router.delete(
   "/delete-product/:id",
   CatchAsyncError(async (req, res, next) => {
