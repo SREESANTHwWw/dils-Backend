@@ -13,42 +13,43 @@ const subcategorymodel = require("../Model/subcategorymodel");
 const UnitModal = require("../Model/UnitModal");
 const cloudinary = require("cloudinary").v2;
 const admin = require("firebase-admin");
+const filePath = path.join(__dirname + process.env.FIREBASE_CREDENTIALS);
+const ServiceAccount = require(filePath);
 
-
-
-
-
-const ServiceAccount = require(process.env.FIREBASE_CREDENTIALS);
 const Usermodel = require("../Model/Usermodel");
 const FcmTokenmodel = require("../Model/FcmTokenmodel");
 admin.initializeApp({
-  credential:admin.credential.cert(ServiceAccount)
-})
+  credential: admin.credential.cert(ServiceAccount),
+});
 
-
-router.post(`/send-notification`, CatchAsyncError(async(req,res,next)=>{
-  try {
-    const {title,body,token} =req.body
-    const message = {
-      notification: {
-        title: title,
-        body: body,
-      },
-      token: token,
-    };
-    admin.messaging().send(message)
-    .then((Response)=>{
-      console.log("Notification sent successfully",Response)
-      res.status(200).json({msg:"sent successfully"})
-    }).catch((err)=>{
-      console.error('Error sending notification:', err);
-      res.status(500).json({ error: 'Failed to send notification' });
-    })
-    
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-  }
-}))
+router.post(
+  `/send-notification`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { title, body, token } = req.body;
+      const message = {
+        notification: {
+          title: title,
+          body: body,
+        },
+        token: token,
+      };
+      admin
+        .messaging()
+        .send(message)
+        .then((Response) => {
+          console.log("Notification sent successfully", Response);
+          res.status(200).json({ msg: "Notification sent successfully" });
+        })
+        .catch((err) => {
+          console.error("Error sending notification:", err);
+          res.status(500).json({ error: "Failed to send notification" });
+        });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
 
 router.post("/save-fcm-token", async (req, res) => {
   try {
@@ -64,9 +65,13 @@ router.post("/save-fcm-token", async (req, res) => {
       if (existingToken.token !== token) {
         existingToken.token = token;
         await existingToken.save();
-        return res.status(200).json({ message: "FCM Token updated successfully" });
+        return res
+          .status(200)
+          .json({ message: "FCM Token updated successfully" });
       }
-      return res.status(200).json({ message: "FCM Token is already up-to-date" });
+      return res
+        .status(200)
+        .json({ message: "FCM Token is already up-to-date" });
     } else {
       await FcmTokenmodel.create({ userId, token });
       return res.status(201).json({ message: "FCM Token saved successfully" });
@@ -77,34 +82,35 @@ router.post("/save-fcm-token", async (req, res) => {
   }
 });
 
-router.get(`/getToken/:userId`,CatchAsyncError(async(req,res,next)=>{
-  try {
-    const {userId} = req.params
-    const token = await FcmTokenmodel.findOne({userId})
-    if(!token){
-      return res.status(404).json({error:"Token not found"})
-    } 
-    res.status(200).json({token})
-    
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-    
-  }
-}))
+router.get(
+  `/getToken/:userId`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { userId } = req.params;
+      const token = await FcmTokenmodel.findOne({ userId });
+      if (!token) {
+        return res.status(404).json({ error: "Token not found" });
+      }
+      res.status(200).json({ token });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
 
+router.post(
+  "/remove-fcm-token",
+  CatchAsyncError(async (req, res) => {
+    try {
+      const { userId, token } = req.body;
 
-router.post("/remove-fcm-token",CatchAsyncError( async (req, res) => {
-  try {
-    const { userId, token } = req.body;
-
-    await FcmTokenmodel.findOneAndDelete({ userId, token });
-    res.json({ message: "FCM Token removed successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to remove FCM Token" });
-  }
-}));
-
-
+      await FcmTokenmodel.findOneAndDelete({ userId, token });
+      res.json({ message: "FCM Token removed successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to remove FCM Token" });
+    }
+  })
+);
 
 router.post(
   "/create-products",
@@ -136,7 +142,6 @@ router.post(
       // await fileData.save();
       const result = await cloudinary.uploader.upload(req.file.path);
       const fileUrl = result.secure_url;
-      
 
       const productdet = {
         productname,
@@ -182,54 +187,57 @@ router.post(
     }
   })
 );
-router.get(`/getunit`,CatchAsyncError(async(req,res,next)=>{
-  try {
-    
-    const getUnit = await UnitModal.find({})
-    res.status(201).json({ msg: "success", getUnit });
-
-
-  } catch (error) {
-    
-    return next(new ErrorHandler(error.message, 400));
-  }
-}))
-router.delete(`/deleteUnit/:id`,CatchAsyncError(async(req,res,next)=>{
-  try {
-    const {id:unitid} =req.params
-
-    const deleteUnit = await UnitModal.findOneAndDelete({_id:unitid})
-     res.status(200).json({msg:"success"})
-    
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-  }
-}))
-router.patch(`/editUnit/:id`, CatchAsyncError(async (req, res, next) => {
-  try {
-    const { id: unitid } = req.params; // Extract unit ID from params
-    const { unitname } = req.body; // Extract updated unit name from request body
-
-    if (!unitname) {
-      return res.status(400).json({ msg: "Unit name is required" });
+router.get(
+  `/getunit`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const getUnit = await UnitModal.find({});
+      res.status(201).json({ msg: "success", getUnit });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
     }
+  })
+);
+router.delete(
+  `/deleteUnit/:id`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { id: unitid } = req.params;
 
-    const updatedUnit = await UnitModal.findByIdAndUpdate(
-      unitid, 
-      { unitname }, 
-      { new: true, runValidators: true } // Returns the updated document
-    );
-
-    if (!updatedUnit) {
-      return res.status(404).json({ msg: "Unit not found" });
+      const deleteUnit = await UnitModal.findOneAndDelete({ _id: unitid });
+      res.status(200).json({ msg: "success" });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
     }
+  })
+);
+router.patch(
+  `/editUnit/:id`,
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      const { id: unitid } = req.params; // Extract unit ID from params
+      const { unitname } = req.body; // Extract updated unit name from request body
 
-    res.status(200).json({ msg: "Unit updated successfully", updatedUnit });
-  } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-  }
-}));
+      if (!unitname) {
+        return res.status(400).json({ msg: "Unit name is required" });
+      }
 
+      const updatedUnit = await UnitModal.findByIdAndUpdate(
+        unitid,
+        { unitname },
+        { new: true, runValidators: true } // Returns the updated document
+      );
+
+      if (!updatedUnit) {
+        return res.status(404).json({ msg: "Unit not found" });
+      }
+
+      res.status(200).json({ msg: "Unit updated successfully", updatedUnit });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
 
 router.delete(
   "/delete-product/:id",
@@ -253,10 +261,11 @@ router.delete(
 );
 
 router.patch(
-  "/edit-product/:id",upload.single("product_img"),
+  "/edit-product/:id",
+  upload.single("product_img"),
   CatchAsyncError(async (req, res, next) => {
     try {
-      const {id : Product_id } = req.params;
+      const { id: Product_id } = req.params;
       const {
         productname,
         product_img,
@@ -270,20 +279,21 @@ router.patch(
         mRP,
       } = req.body;
 
-      const productExist = await Productmodel.findById(Product_id );
+      const productExist = await Productmodel.findById(Product_id);
       if (!productExist) {
         res.status(401).json({ msg: "Product Not Found" });
       }
 
       const updateProduct = {};
       if (productname) updateProduct.productname = productname;
-    
+
       if (price) updateProduct.price = price;
       if (unitid) updateProduct.unitid = unitid;
       if (description) updateProduct.description = description;
       if (medium_price) updateProduct.medium_price = medium_price;
       if (premium_price) updateProduct.premium_price = premium_price;
-      if (minimum_order_quantity) updateProduct.minimum_order_quantity = minimum_order_quantity;
+      if (minimum_order_quantity)
+        updateProduct.minimum_order_quantity = minimum_order_quantity;
       if (fast_moving) updateProduct.fast_moving = fast_moving;
       if (mRP) updateProduct.mRP = mRP;
       if (req.file) {
@@ -292,11 +302,10 @@ router.patch(
         updateProduct.product_img = fileUrl;
       }
 
-
       const editProduct = await Productmodel.findByIdAndUpdate(
-         Product_id ,
-         { $set: updateProduct },
-        
+        Product_id,
+        { $set: updateProduct },
+
         {
           new: true,
           runValidators: true,
@@ -321,8 +330,8 @@ router.post(
     try {
       const { parentCategory_id, Category_name, subCategory, hasSubcategory } =
         req.body;
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const fileUrl = result.secure_url;
+      const result = await cloudinary.uploader.upload(req.file.path);
+      const fileUrl = result.secure_url;
       const categorydet = {
         parentCategory_id,
         Category_img: fileUrl,
@@ -429,10 +438,5 @@ router.patch(
     }
   })
 );
-
-
-
-
-
 
 module.exports = router;
