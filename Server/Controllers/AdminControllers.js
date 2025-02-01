@@ -18,7 +18,7 @@ const admin = require("firebase-admin");
 
 
 
-const ServiceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS) 
+const ServiceAccount = require(process.env.FIREBASE_CREDENTIALS);
 const Usermodel = require("../Model/Usermodel");
 const FcmTokenmodel = require("../Model/FcmTokenmodel");
 admin.initializeApp({
