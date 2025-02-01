@@ -16,7 +16,7 @@ const admin = require("firebase-admin");
 
 
 
-const ServiceAccount = require("../Firebase/dils-trades-push-firebase-adminsdk-fbsvc-d9ed9896bd.json");
+const ServiceAccount = require("../Firebase/dils-trades-push-firebase-adminsdk-fbsvc-fb84bd83df.json");
 const Usermodel = require("../Model/Usermodel");
 const FcmTokenmodel = require("../Model/FcmTokenmodel");
 admin.initializeApp({
