@@ -10,6 +10,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const cloudinary = require("cloudinary").v2;
 
+
 require("dotenv").config();
 
 app.get("/", (req, res) => {
@@ -24,6 +25,7 @@ app.use("/api/v1/", adminrouter);
 app.use("/api/v1/",Productrouter)
 app.use('/api/v1/', categoryrouter) 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")))
+
 
 
 

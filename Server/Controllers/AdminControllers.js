@@ -12,6 +12,97 @@ const subcategorymodel = require("../Model/subcategorymodel");
 const Server = require("../Server");
 const UnitModal = require("../Model/UnitModal");
 const cloudinary = require("cloudinary").v2;
+const admin = require("firebase-admin");
+
+
+
+const ServiceAccount = require("../Firebase/dils-trades-push-firebase-adminsdk-fbsvc-d9ed9896bd.json");
+const Usermodel = require("../Model/Usermodel");
+const FcmTokenmodel = require("../Model/FcmTokenmodel");
+admin.initializeApp({
+  credential:admin.credential.cert(ServiceAccount)
+})
+
+
+router.post(`/send-notification`, CatchAsyncError(async(req,res,next)=>{
+  try {
+    const {title,body,token} =req.body
+    const message = {
+      notification: {
+        title: title,
+        body: body,
+      },
+      token: token,
+    };
+    admin.messaging().send(message)
+    .then((Response)=>{
+      console.log("Notification sent successfully",Response)
+      res.status(200).json({msg:"Notification sent successfully"})
+    }).catch((err)=>{
+      console.error('Error sending notification:', err);
+      res.status(500).json({ error: 'Failed to send notification' });
+    })
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+}))
+
+router.post("/save-fcm-token", async (req, res) => {
+  try {
+    const { userId, token } = req.body;
+
+    if (!userId || !token) {
+      return res.status(400).json({ error: "User ID and Token are required" });
+    }
+
+    const existingToken = await FcmTokenmodel.findOne({ userId });
+
+    if (existingToken) {
+      if (existingToken.token !== token) {
+        existingToken.token = token;
+        await existingToken.save();
+        return res.status(200).json({ message: "FCM Token updated successfully" });
+      }
+      return res.status(200).json({ message: "FCM Token is already up-to-date" });
+    } else {
+      await FcmTokenmodel.create({ userId, token });
+      return res.status(201).json({ message: "FCM Token saved successfully" });
+    }
+  } catch (error) {
+    console.error("Error saving FCM Token:", error);
+    return res.status(500).json({ error: "Failed to save FCM Token" });
+  }
+});
+
+router.get(`/getToken/:userId`,CatchAsyncError(async(req,res,next)=>{
+  try {
+    const {userId} = req.params
+    const token = await FcmTokenmodel.findOne({userId})
+    if(!token){
+      return res.status(404).json({error:"Token not found"})
+    } 
+    res.status(200).json({token})
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+    
+  }
+}))
+
+
+router.post("/remove-fcm-token",CatchAsyncError( async (req, res) => {
+  try {
+    const { userId, token } = req.body;
+
+    await FcmTokenmodel.findOneAndDelete({ userId, token });
+    res.json({ message: "FCM Token removed successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to remove FCM Token" });
+  }
+}));
+
+
 
 router.post(
   "/create-products",
@@ -336,5 +427,10 @@ router.patch(
     }
   })
 );
+
+
+
+
+
 
 module.exports = router;

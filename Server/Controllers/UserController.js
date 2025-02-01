@@ -122,8 +122,23 @@ router.get(
     }
   })
 );
+router.get(
+  "/get-all-users",
+  CatchAsyncError(async (req, res, next) => {
+    try {
+      
+     const getusers = await usermodel.find({ type: { $ne: "admin" } });
+      
+    
 
-router.delete(
+      res.status(201).json({ getusers});
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
+
+router.delete( 
   "/delete-user/:id",
   CatchAsyncError(async (req, res, next) => {
     try {
