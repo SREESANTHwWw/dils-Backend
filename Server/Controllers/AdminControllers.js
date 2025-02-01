@@ -15,8 +15,23 @@ const cloudinary = require("cloudinary").v2;
 const admin = require("firebase-admin");
 
 
+const ServiceAccount = {
+  "type": "service_account",
+  "project_id": "dils-trades-push",
+  "private_key_id": "04fd9ad2547bfbf3a925e430d2634b26b003bbb5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDjRlOu4n6xHMmx\ny/Ia5exohQWzq0DjnfwXoqSqxpCsUNyTBDgg6pWLlbNa9PmEeHscFOOodmLbBaRl\n/gSZTEO5/4h/a3VX40L+dHhrjeRGFlCkW22XY9RX/2UmyIUa6c93O5h2CiCqjl3K\nSsbtHGqQQhbwiclsOoO/4BAOKe1WaBUez3KyoAJCpAzFQn06oWKchmWeCXAtpYjo\nn1gHQLnn/NDOFiEGKymTvJQsD+qz2IxO7OcJMCccpTF7cdWLwYJjhIa7QjzRY1Fa\n/0WIuuNLkEvP8SCMpx4/ZpqAIOpGB8KaW5oGQoQBBHUeQ6nwqtsxJUcj/S3r9NQz\nDa0OoFOnAgMBAAECggEAA8nl1jn/W6t7r0OTlyAzFzD0feDCdajqDWjQLuqdecnl\nS2wcFWxjrs6BjWgdCrjJcJfmjaXfkwAek/auk/GiBWU9nMYpUBxBPyWo5j4YypRP\nptXBV286GHdw87sPAPpZ04aCTaFwlvdFl/w0IbrCCgKYCE17tpqpHJc7HUlUpAaT\nGXtSw4spaRIvIncPVWMdLqSemxpa5v3GmvnzBWllx3pdC4YB3Vb5uq2DHyviFkJK\nL9SA+oDo4SsRBeUkAlUzx1CJcAFBhhP1NnkLdTr1rqxYpkfqLO05J/k5ZEsqzww4\n4kYAI+TfNdwFiLlTsiOwcGVXykjTEYYtdqCsW+F/BQKBgQD/SC8WxwfiflyeSv4Y\n7FxthrmAskNhaQi+j/ReE89BMN5SioKh2c5e5Cnjs7KDGhirqo5JmgjOhvApYsI6\nuT+QPsjWDFvhA/1whtwGpgVJIcXscGjSVSEGgIXWuiFFxgYFsvkvQKWhEz7HnnRT\nUhjT5W9Ni+o/A1JEU0we/8EnywKBgQDj6fnuSZNyx8WRPWoMVEHHGOSesEOnlXiu\nhQ9EnbMJrKiBVjFXQbk3fmzkkH/KN9SgwquEthAs3WxYmJbJ7YXJP/VGaDSdzcD2\nZx3BVxIuV7YlHRYVFCoZzvUQvriAPxdt0fiFvnaMwpoeROjmCL8eH1t7YVUMHh7f\n0xIMdrYwFQKBgE81p57KrPCjQru/Cy7SkC9P4VlEdtHP1G3Enw9d2C4jKqiz36q2\nuWkKJNFJXbd+Lm99oV7HE7p5diVxRlEQT9/DC3AXL58XLNlwju7lLritaQtfKbcx\nwOiSknS5Fj/fHNlB2j3GMl5TaWRpDzEXRSrigvGt20YoEquuqOzpcJaXAoGBAOAE\n3i3y0eRzKeV9qRwfQVxSQn0cIhO53pojnYNDQnTS6fne37a1mjlKofvzcDgysmOl\nlPNoBPQkXFek/CnUtri+jfa7fGRTlkRbzKp6TBuTCSznrwne/RbLDqR74lvkJ8JB\nLXdAY8Qtj1ELSKS6miggiEn4vKChhpVYIRhxItiVAoGAQFWhgMwLfbFI46o9PbR7\nE9Km0NPUaC0K9k3vcG8nXLlhUtxYm+lqvwG5kMX3vv32ZlPr/bIvJVaoPGV1wZSN\nvhanB7GjEIyJk/cXAdn7KlxyapdMHSmyru97kn6WU/GSgGx1m/n3NxkxV8of3EQd\nKS8w4RWMylXdfZsV/6OENec=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fbsvc@dils-trades-push.iam.gserviceaccount.com",
+  "client_id": "100503793453840952095",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40dils-trades-push.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
 
-const ServiceAccount = require(process.env.FIREBASE_CREDENTIALS);
+
+
+// const ServiceAccount = require(process.env.FIREBASE_CREDENTIALS);
 const Usermodel = require("../Model/Usermodel");
 const FcmTokenmodel = require("../Model/FcmTokenmodel");
 admin.initializeApp({
@@ -37,7 +52,7 @@ router.post(`/send-notification`, CatchAsyncError(async(req,res,next)=>{
     admin.messaging().send(message)
     .then((Response)=>{
       console.log("Notification sent successfully",Response)
-      res.status(200).json({msg:"Notification sent successfully"})
+      res.status(200).json({msg:"sent successfully"})
     }).catch((err)=>{
       console.error('Error sending notification:', err);
       res.status(500).json({ error: 'Failed to send notification' });
