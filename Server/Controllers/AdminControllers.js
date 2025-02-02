@@ -42,7 +42,7 @@ router.post(`/send-notification`, CatchAsyncError(async(req,res,next)=>{
       res.status(200).json({msg:"sent successfully"})
     }).catch((err)=>{
       console.error('Error sending notification:', err);
-      res.status(500).json({ error: 'Failed to send notification' });
+      res.status(500).json({ error: 'Failed to send notification' },err );
     })
     
   } catch (error) {
