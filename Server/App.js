@@ -19,7 +19,14 @@ app.get("/", (req, res) => {
 app.use(express.json());
 app.use(cookieParser())
 
-app.use(cors());
+app.use(cors({
+  origin: "https://dils-trades.onrender.com",  // Allow frontend domain
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,  // If using cookies or authentication
+}));
+
+
 app.use("/api/v1", userrouter);
 app.use("/api/v1/", adminrouter);
 app.use("/api/v1/",Productrouter)
