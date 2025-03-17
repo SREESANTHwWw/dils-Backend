@@ -14,6 +14,9 @@ const orderSchema =  new mongoose.Schema({
         type:String
   
       },
+      product_img:{
+         type:String
+      },
       price:{
           type:String
   
@@ -22,9 +25,25 @@ const orderSchema =  new mongoose.Schema({
           type:Number ,
           default:1
       },
+      unitid:{
+        type:String
+      },
      
     
    }],
+   UserData :[{
+    shopname:{
+      type:String
+    },
+    username:{
+      type:String
+    },
+    phonenumber:{
+      type:String
+    }
+ } ]
+    
+   ,
    address:{
     type:Array,
     required:true

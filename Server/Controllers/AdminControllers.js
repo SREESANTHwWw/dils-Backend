@@ -6,16 +6,18 @@ const Productmodel = require("../Model/Productmodel");
 const ErrorHandler = require("../Utils/ErrorHandler");
 const express = require("express");
 const router = express.Router();
-const upload = require("../Multer");
+
 const CategoryModel = require("../Model/CategoryModel");
 const subcategorymodel = require("../Model/subcategorymodel");
 
 const UnitModal = require("../Model/UnitModal");
 const cloudinary = require("cloudinary").v2;
 const admin = require("firebase-admin"); 
+require('dotenv').config();
 
 const Usermodel = require("../Model/Usermodel");
 const FcmTokenmodel = require("../Model/FcmTokenmodel");
+const { upload } = require("../Multer");
 admin.initializeApp({
   credential:admin.credential.cert({
     type:process.env.FIREBASE_TYPE,
@@ -134,17 +136,14 @@ router.post(
         mRP,
       } = req.body;
 
-      // const fileData = new File({
-      //   filename: req.file.originalname,
-      //   filepath: req.file.path,
-      //   fileUrl: http://localhost:5000/uploads/${req.file.filename},
-      // });
-
+      const productFilename = req.file.filename;
+      const filepath = `uploads/${productFilename}`;
+      const fileUrl = `http://localhost:5000/uploads/${productFilename}`;
       // console.log(fileData);
 
       // await fileData.save();
-      const result = await cloudinary.uploader.upload(req.file.path);
-      const fileUrl = result.secure_url;
+      // const result = await cloudinary.uploader.upload(req.file.path);
+      // const fileUrl = result.secure_url;
       
 
       const productdet = {
@@ -296,8 +295,9 @@ router.patch(
       if (fast_moving) updateProduct.fast_moving = fast_moving;
       if (mRP) updateProduct.mRP = mRP;
       if (req.file) {
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const fileUrl = result.secure_url;
+        const productFilename = req.file.filename;
+        const filepath = `uploads/${productFilename}`;
+        const fileUrl = `http://localhost:5000/uploads/${productFilename}`;;
         updateProduct.product_img = fileUrl;
       }
 
@@ -330,8 +330,9 @@ router.post(
     try {
       const { parentCategory_id, Category_name, subCategory, hasSubcategory } =
         req.body;
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const fileUrl = result.secure_url;
+        const productFilename = req.file.filename;
+        const filepath = `uploads/${productFilename}`;
+        const fileUrl = `http://localhost:5000/uploads/${productFilename}`;
       const categorydet = {
         parentCategory_id,
         Category_img: fileUrl,
@@ -355,8 +356,9 @@ router.post(
   CatchAsyncError(async (req, res, next) => {
     try {
       const { subCategory, category_id } = req.body;
-      const result = await cloudinary.uploader.upload(req.file.path);
-      const fileUrl = result.secure_url;
+      const productFilename = req.file.filename;
+      const filepath = `uploads/${productFilename}`;
+      const fileUrl = `http://localhost:5000/uploads/${productFilename}`;
       const subcategoryDet = {
         subCategory,
         category_id,
@@ -418,8 +420,9 @@ router.patch(
 
       // Update image if a new file is uploaded
       if (req.file) {
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const fileUrl = result.secure_url;
+        const productFilename = req.file.filename;
+      const filepath = `uploads/${productFilename}`;
+      const fileUrl = `http://localhost:5000/uploads/${productFilename}`;
         updatedData.Category_img = fileUrl;
       }
 

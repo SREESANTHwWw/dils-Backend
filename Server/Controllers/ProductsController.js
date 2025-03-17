@@ -149,6 +149,7 @@ router.post(
         productname,
         product_img,
         description,
+        unitid,
         mRP,
         action,
       } = req.body;
@@ -193,6 +194,7 @@ router.post(
               description,
               price: selectedPrice,
               mRP,
+              unitid,
               subtotal: selectedPrice * minimum_order_quantity,
             },
           ],
@@ -230,6 +232,7 @@ router.post(
             description,
             price: selectedPrice,
             mRP,
+            unitid,
             subtotal: selectedPrice * minimum_order_quantity,
           });
         }
@@ -330,6 +333,7 @@ router.post(
         userId,
         orderDetails,
         address,
+        userinfo,
        subtotal
       } = req.body;
 
@@ -339,6 +343,7 @@ router.post(
         userId:userId,
         products:orderDetails,
         address:address,
+        UserData:userinfo,
         subtotal:subtotal
       });
 
@@ -382,6 +387,29 @@ router.get('/getAllorders',CatchAsyncError(async(req,res,next)=>{
     
   } catch (error) {
     return next( new ErrorHandler(error.message,400))
+    
+  }
+}))
+router.get('/getorders',CatchAsyncError(async(req,res,next)=>{
+  try {
+    const getorders =await OrderModel.find()
+    res.status(200).json({getorders})
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message,400))
+    
+  }
+}))
+
+router.get('/get-orderby-id/:id',CatchAsyncError(async(req,res,next)=>{
+
+  try {
+    const {id} = req.params
+    const getorder = await OrderModel.findById(id)
+    res.status(200).json({getorder})
+    
+  } catch (error) {
+    return next(new ErrorHandler(error.message,400))
     
   }
 }))

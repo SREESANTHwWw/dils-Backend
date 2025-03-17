@@ -31,6 +31,10 @@ const CartModelSChema = new mongoose.Schema({
         type:String
 
     },
+    unitid:{
+        type:String
+
+    },
   
     description:{
         type:String

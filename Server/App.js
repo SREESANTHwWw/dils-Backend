@@ -14,7 +14,7 @@ const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
 
 app.get("/", (req, res) => {
-  res.send("home");
+  res.send("home"); 
 });
 app.use(express.json());
 app.use(cookieParser())

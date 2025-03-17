@@ -85,11 +85,27 @@ fcmToken:
 })
 
 
-UserSchema.methods.getJwtToken=function(){
-  return jwt.sign({id:this._id},process.env.JWT_SECRET_KEY,{
-      expiresIn:process.env.JWT_EXPIRES,
-  });
-  }
+UserSchema.methods.getJwtToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+      username: this.username,
+      shopname: this.shopname,
+      owner: this.owner,
+      phonenumber: this.phonenumber,
+      address: this.address,
+      gstno: this.gstno,
+      pincode: this.pincode,
+      city: this.city,
+      whatsappno: this.whatsappno,
+      stateid: this.stateid,
+      type: this.type
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: process.env.JWT_EXPIRES }
+  );
+};
+
  
 UserSchema.pre("save", async function(next){
   if(!this.isModified("password")){
